@@ -1,4 +1,4 @@
-// OVERRIDE CORE METHOD for custom facebook user selection on email
+// OVERRIDE CORE METHOD for custom twitter user selection on email
 // this can be removed when the pull-request is merged
 // https://github.com/meteor/meteor/pull/2318
 
@@ -143,8 +143,8 @@ Accounts.externalServiceSelectorTwitter = function(
 
 /// this must remain in this package after pull request merge
 
-//our custom facebook selector to also select users on facebook-email
-Accounts.externalServiceSelectorFacebook = function(
+//our custom twitter selector to also select users on twitter-email
+Accounts.externalServiceSelectorTwitter = function(
   serviceName, serviceData, options){
   var serviceIdKey = "services." + serviceName + ".id";
   var selector = {};
@@ -158,27 +158,27 @@ Accounts.externalServiceSelectorFacebook = function(
 };
 
 Meteor.methods({
-  connectUserWithFacebook: function (token, secret) {
+  connectUserWithTwitter: function (token, secret) {
     //errors
     if (! this.userId)
       throw new Meteor.Error(403, "user must be loggedin");
 
     var user = Meteor.user();
-    if (user.services && user.services.facebook)
-      throw new Meteor.Error(403, "user can not have a facebook connected account");
+    if (user.services && user.services.twitter)
+      throw new Meteor.Error(403, "user can not have a twitter connected account");
 
     if (Meteor.isServer) {
-      var fbData = Facebook.retrieveCredential(token, secret);
+      var tData = Twitter.retrieveCredential(token, secret);
 
-      if(!fbData)
+      if (! tData)
         throw new Meteor.Error(403, "not able to retreive fb data");
 
-      //check if no accounts exists for this facebook user
-      var existing = Meteor.users.find({'services.facebook.id': fbData.serviceData.id}).count();
+      //check if no accounts exists for this twitter user
+      var existing = Meteor.users.find({'services.twitter.id': tData.serviceData.id}).count();
       if(existing)
-        throw new Meteor.Error(403, "user can not have a facebook connected account");
+        throw new Meteor.Error(403, "user can not have a twitter connected account");
 
-      Meteor.users.update(this.userId, {$set: {'services.facebook': fbData.serviceData}});
+      Meteor.users.update(this.userId, {$set: {'services.twitter': tData.serviceData}});
     }
   }
 });
